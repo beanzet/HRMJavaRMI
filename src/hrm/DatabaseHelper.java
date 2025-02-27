@@ -46,8 +46,20 @@ public class DatabaseHelper {
     }
 
     public void applyForLeave(int employeeId, String startDate, String endDate) {
-        // Insert leave record into the database
+        new Thread(() -> {
+            String sql = "INSERT INTO LeaveRecords (employee_id, start_date, end_date, status) VALUES (?, ?, 'PENDING')";
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setInt(1, employeeId);
+                stmt.setString(2, startDate);
+                stmt.setString(3, endDate);
+                stmt.executeUpdate();
+                System.out.println("Leave application submitted successfully.");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
+
 
     public String checkLeaveStatus(int leaveId) {
         // Query leave status

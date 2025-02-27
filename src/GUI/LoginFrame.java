@@ -4,14 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import hrm.HRMService;
 import hrm.UserSession;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 public class LoginFrame extends JFrame {
     private JTextField txtUsername;
@@ -61,33 +59,37 @@ public class LoginFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String username = txtUsername.getText();
                 String password = new String(txtPassword.getPassword());
-                
-                System.out.println("Checking components...");
-                System.out.println("hrmService: " + hrmService);
-                System.out.println("txtUsername: " + txtUsername);
-                System.out.println("txtPassword: " + txtPassword);
-                System.out.println("chkRememberMe: " + chkRememberMe);
 
-
-                try {
-                    // Validate credentials via RMI
-                    int userId = hrmService.validateUser(username, password);
-                    if (userId != -1) {
-                        // Save session if "Remember Me" is checked
-                        if (chkRememberMe.isSelected()) {
-                            UserSession session = new UserSession(userId, username, true);
-                            session.saveSession("session.ser");
-                        }
-                        openMainFrame(userId);
-                        dispose();
-                    } else {
-                        JOptionPane.showMessageDialog(LoginFrame.this, "Invalid username or password.");
+                new SwingWorker<Integer, Void>() {
+                    @Override
+                    protected Integer doInBackground() throws Exception {
+                        return hrmService.validateUser(username, password); // RMI call
                     }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+
+                    @Override
+                    protected void done() {
+                        try {
+                            int userId = get();
+                            if (userId != -1) {
+                                if (chkRememberMe.isSelected()) {
+                                    new Thread(() -> {
+                                        UserSession session = new UserSession(userId, username, true);
+                                        session.saveSession("session.ser");
+                                    }).start(); // Save session in a separate thread
+                                }
+                                openMainFrame(userId);
+                                dispose();
+                            } else {
+                                JOptionPane.showMessageDialog(LoginFrame.this, "Invalid username or password.");
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }.execute();
             }
         });
+
 
         // Layout
         JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
