@@ -20,7 +20,7 @@ public class Client {
             public void run() {
                 try {
                     // Connect to RMI Registry
-                    Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+                    Registry registry = LocateRegistry.getRegistry("localhost", 1098);
                     HRMService hrmService = (HRMService) registry.lookup("HRMService");
                     
                     new LoginFrame().setVisible(true);
