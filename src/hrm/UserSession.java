@@ -13,7 +13,7 @@ public class UserSession implements Serializable {
         this.rememberMe = rememberMe;
     }
 
-    // Serialize the session to a file
+    // Serialize
     public void saveSession(String filePath) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
             oos.writeObject(this);
@@ -22,12 +22,12 @@ public class UserSession implements Serializable {
         }
     }
 
-    // Deserialize the session from a file
+    // Deserialize
     public static UserSession loadSession(String filePath) {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
             return (UserSession) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            return null; // No saved session
+            return null;
         }
     }
 
