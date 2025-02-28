@@ -1,11 +1,10 @@
 package hrm;
 
-import hrm.DatabaseHelper;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
 import java.util.List;
 
-public class HRMServiceImpl extends UnicastRemoteObject implements HRMService {
+class HRMServiceImpl extends UnicastRemoteObject implements HRMService {
     private DatabaseHelper dbHelper; // Helper class to interact with the database
 
     public HRMServiceImpl() throws RemoteException {
